@@ -1,6 +1,108 @@
 # User Service
 
-Um microserviço RESTful para gerenciamento de usuários, construído com Laravel 12 e PostgreSQL. Este serviço implementa operações CRUD básicas para usuários e utiliza RabbitMQ para comunicação assíncrona.
+Um microserviço RESTful para gerenciamento de usuários, parte de uma arquitetura distribuída em microsserviços. Este serviço é responsável pelo gerenciamento dos dados básicos dos usuários e pela publicação de eventos de mudança de estado através do RabbitMQ.
+
+## 🏗️ Arquitetura do Sistema
+
+O sistema é composto por três componentes principais:
+
+1. **Frontend (React)**
+
+    - Interface de usuário
+    - Comunica com o user-service via REST
+
+2. **User Service** (este serviço)
+
+    - Gerencia dados básicos dos usuários
+    - Usa PostgreSQL como banco de dados
+    - Publica eventos no RabbitMQ quando um usuário é criado
+    - Serviços disponíveis:
+        - API REST: http://localhost:8000
+        - PostgreSQL: localhost:5432
+        - RabbitMQ: localhost:5672
+        - Redis: localhost:6379
+
+3. **Enrichment Service**
+    - Consome eventos do RabbitMQ
+    - Enriquece dados dos usuários
+    - Usa MongoDB para persistência
+    - Expõe API REST para consulta de dados enriquecidos
+
+### Fluxo de Comunicação
+
+```mermaid
+graph LR
+    A[Frontend] -->|REST| B[User Service]
+    B -->|Evento user.created| C[RabbitMQ]
+    C -->|Consome evento| D[Enrichment Service]
+    A -->|REST| D
+```
+
+## 🚀 Como Executar
+
+### Pré-requisitos
+
+-   Docker e Docker Compose instalados
+-   Git instalado
+
+### Passo a Passo
+
+1. **Clone os repositórios**
+
+```bash
+# User Service
+git clone git@github.com:carinavbritto/laravel-user-service.git
+cd user-service
+
+# Enrichment Service
+git clone git@github.com:carinavbritto/nestjs-enrichment-service.git
+cd enrichment-service
+```
+
+2. **Configure as variáveis de ambiente**
+    - Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+
+```env
+APP_NAME="User Service"
+APP_ENV=local
+APP_KEY=
+APP_DEBUG=true
+APP_URL=http://localhost:8000
+
+DB_CONNECTION=pgsql
+DB_HOST=db
+DB_PORT=5432
+DB_DATABASE=user_service
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+
+REDIS_HOST=redis
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+RABBITMQ_HOST=rabbitmq
+RABBITMQ_PORT=5672
+RABBITMQ_USER=guest
+RABBITMQ_PASSWORD=guest
+RABBITMQ_VHOST=/
+```
+
+3. **Inicie os serviços na ordem correta**
+
+```bash
+# 1. Primeiro, inicie o User Service
+cd /caminho/para/user-service
+docker-compose up -d
+
+# Aguarde alguns segundos para garantir que todos os serviços estejam rodando
+docker-compose ps
+
+# 2. Depois, inicie o Enrichment Service
+cd /caminho/para/enrichment-service
+docker-compose up -d
+```
+
+> ⚠️ **Importante**: O User Service deve ser iniciado primeiro, pois ele cria a rede compartilhada que o Enrichment Service utiliza. Verifique se todos os serviços do User Service estão rodando antes de iniciar o Enrichment Service.
 
 ## Tecnologias Utilizadas
 
@@ -232,17 +334,28 @@ Quando um usuário é criado, o serviço publica uma mensagem no RabbitMQ com o 
     "event": "user.created",
     "payload": {
         "uuid": "uuid-v4",
-        "name": "Nome do Usuário"
+        "name": "Nome do Usuário",
+        "email": "email@exemplo.com",
+        "created_at": "2024-03-20T10:00:00Z"
     }
 }
 ```
 
 ## Acessando os Serviços
 
--   API: http://localhost:8000
--   RabbitMQ Management: http://localhost:15672 (usuário: guest, senha: guest)
--   PostgreSQL: localhost:5432
--   Redis: localhost:6379
+### User Service
+
+-   **API REST**: http://localhost:8000
+-   **PostgreSQL**: localhost:5432
+-   **RabbitMQ**: localhost:5672
+-   **RabbitMQ Management UI**: http://localhost:15672
+    -   Usuário: guest
+    -   Senha: guest
+-   **Redis**: localhost:6379
+
+### Enrichment Service
+
+-   **API REST**: http://localhost:3000
 
 ## Justificativa das Escolhas Tecnológicas
 
@@ -348,3 +461,129 @@ Os logs são armazenados em `storage/logs/laravel.log` e incluem:
 -   Tempo de resposta
 -   Uso de recursos
 -   Status dos serviços
+
+## ⚠️ Troubleshooting
+
+### Erro de rede não encontrada
+
+Se você receber o erro `network user-service-network declared as external, but could not be found`, significa que o User Service não foi iniciado primeiro. Execute:
+
+```bash
+# 1. Pare o Enrichment Service
+cd /caminho/para/enrichment-service
+docker-compose down
+
+# 2. Inicie o User Service
+cd /caminho/para/user-service
+docker-compose up -d
+
+# 3. Aguarde alguns segundos e verifique se todos os serviços estão rodando
+docker-compose ps
+
+# 4. Inicie o Enrichment Service novamente
+cd /caminho/para/enrichment-service
+docker-compose up -d
+```
+
+### Serviço não inicia
+
+```bash
+# Verifique os logs
+docker-compose logs -f app
+```
+
+### Erro de conexão com RabbitMQ
+
+```bash
+# Verifique se o RabbitMQ está rodando
+docker-compose ps
+
+# Verifique os logs do RabbitMQ
+docker-compose logs -f rabbitmq
+```
+
+-   Status dos serviços
+
+## 🔄 Eventos Publicados
+
+O User Service publica os seguintes eventos no RabbitMQ:
+
+### user.created
+
+Publicado quando um novo usuário é criado.
+
+```json
+{
+    "event": "user.created",
+    "payload": {
+        "uuid": "uuid-v4",
+        "name": "Nome do Usuário",
+        "email": "email@exemplo.com",
+        "created_at": "2024-03-20T10:00:00Z"
+    }
+}
+```
+
+### user.updated
+
+Publicado quando um usuário existente é atualizado.
+
+```json
+{
+    "event": "user.updated",
+    "payload": {
+        "uuid": "uuid-v4",
+        "name": "Novo Nome",
+        "email": "novo@email.com",
+        "updated_at": "2024-03-20T11:00:00Z"
+    }
+}
+```
+
+### user.deleted
+
+Publicado quando um usuário é deletado.
+
+```json
+{
+    "event": "user.deleted",
+    "payload": {
+        "uuid": "uuid-v4",
+        "deleted_at": "2024-03-20T12:00:00Z"
+    }
+}
+```
+
+## 🔌 Integração com Outros Serviços
+
+### Enrichment Service
+
+-   Consome eventos `user.created` para enriquecer os dados do usuário
+-   Mantém uma cópia dos dados básicos do usuário em seu próprio banco MongoDB
+-   Expõe endpoints REST para consulta de dados enriquecidos
+
+### Frontend
+
+-   Comunica-se diretamente com o User Service para operações CRUD básicas
+-   Consulta o Enrichment Service para obter dados enriquecidos
+-   Implementa tratamento de erros e retry para garantir resiliência
+
+## 🛡️ Resiliência e Tratamento de Erros
+
+### Retry Policy
+
+-   Implementa retry exponencial para falhas de comunicação
+-   Máximo de 3 tentativas para operações críticas
+-   Backoff exponencial entre tentativas
+
+### Circuit Breaker
+
+-   Monitora a saúde dos serviços dependentes
+-   Abre o circuito após múltiplas falhas
+-   Permite recuperação gradual
+
+### Logging e Monitoramento
+
+-   Logs detalhados de todas as operações
+-   Métricas de performance e saúde
+-   Alertas para falhas críticas
