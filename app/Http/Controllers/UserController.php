@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use PhpAmqpLib\Message\AMQPMessage;
 
 class UserController extends Controller
 {
@@ -44,10 +45,32 @@ class UserController extends Controller
             $user = User::create($validated);
 
             try {
+                \Log::info('Iniciando publicação do evento para o usuário', [
+                    'uuid' => $user->uuid,
+                    'name' => $user->name
+                ]);
+
+                $message = new AMQPMessage(
+                    json_encode([
+                        'uuid' => $user->uuid,
+                        'name' => $user->name
+                    ]),
+                    [
+                        'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT,
+                        'content_type' => 'application/json'
+                    ]
+                );
+
                 $publisher = new PublishUserCreated($user->uuid, $user->name);
                 $publisher->handle();
+
+                \Log::info('Evento publicado com sucesso para o usuário', [
+                    'uuid' => $user->uuid,
+                    'name' => $user->name
+                ]);
             } catch (\Exception $e) {
                 \Log::error('Erro ao publicar evento: ' . $e->getMessage());
+                \Log::error($e->getTraceAsString());
             }
 
             return response()->json($user, 201);
