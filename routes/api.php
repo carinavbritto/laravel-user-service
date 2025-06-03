@@ -4,12 +4,27 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
-Route::prefix('users')->group(function () {
-    Route::get('/', [UserController::class, 'index'])->middleware('jwt.auth');
-    Route::post('/', [UserController::class, 'store'])->middleware('jwt.auth');
-    Route::get('/{id}', [UserController::class, 'show'])->middleware('jwt.auth');
-    Route::put('/{id}', [UserController::class, 'update'])->middleware('jwt.auth');
-    Route::delete('/{id}', [UserController::class, 'destroy'])->middleware('jwt.auth');
+// Rotas de autenticação com rate limiting
+Route::controller(AuthController::class)->group(function () {
+    // Rotas públicas com limite mais restrito
+    Route::post('login', 'login')->middleware('throttle:5,1'); // 5 tentativas por minuto
+    Route::post('register', 'register')->middleware('throttle:3,1'); // 3 tentativas por minuto
+
+    // Rotas protegidas com limite mais generoso
+    Route::middleware('jwt.auth')->group(function () {
+        Route::post('logout', 'logout')->middleware('throttle:10,1'); // 10 tentativas por minuto
+        Route::post('refresh', 'refresh')->middleware('throttle:10,1'); // 10 tentativas por minuto
+        Route::get('user-profile', 'userProfile')->middleware('throttle:30,1'); // 30 tentativas por minuto
+    });
+});
+
+// Rotas de usuários com rate limiting
+Route::prefix('users')->middleware(['jwt.auth', 'throttle:60,1'])->group(function () { // 60 tentativas por minuto
+    Route::get('/', [UserController::class, 'index']);
+    Route::post('/', [UserController::class, 'store']);
+    Route::get('/{id}', [UserController::class, 'show']);
+    Route::put('/{id}', [UserController::class, 'update']);
+    Route::delete('/{id}', [UserController::class, 'destroy']);
 });
 
 /*
