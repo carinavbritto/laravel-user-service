@@ -22,7 +22,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('login', 'login');
     Route::post('register', 'register');
     Route::post('logout', 'logout')->middleware('jwt.auth');
-    Route::post('refresh', 'refresh')->middleware('jwt.refresh');
+    Route::post('refresh', 'refresh')->middleware('jwt.auth');
     Route::get('user-profile', 'userProfile')->middleware('jwt.auth');
 });
 
