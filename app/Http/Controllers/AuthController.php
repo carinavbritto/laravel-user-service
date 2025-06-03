@@ -12,7 +12,7 @@ use Illuminate\Routing\Controller as BaseController;
 /**
  * @OA\Tag(
  *     name="Auth",
- *     description="API Endpoints para autenticação"
+ *     description="Endpoints de autenticação"
  * )
  */
 class AuthController extends BaseController
@@ -25,8 +25,8 @@ class AuthController extends BaseController
     /**
      * @OA\Post(
      *     path="/api/auth/login",
-     *     summary="Autentica um usuário",
      *     tags={"Auth"},
+     *     summary="Login de usuário",
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -35,30 +35,8 @@ class AuthController extends BaseController
      *             @OA\Property(property="password", type="string", minLength=6)
      *         )
      *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Login realizado com sucesso",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(
-     *                 property="authorization",
-     *                 type="object",
-     *                 @OA\Property(property="token", type="string"),
-     *                 @OA\Property(property="type", type="string", example="bearer"),
-     *                 @OA\Property(property="expires_in", type="integer")
-     *             ),
-     *             @OA\Property(property="user", type="object")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Credenciais inválidas"
-     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Erro de validação"
-     *     )
+     *     @OA\Response(response=200, description="Login realizado com sucesso"),
+     *     @OA\Response(response=401, description="Credenciais inválidas")
      * )
      */
     public function login(Request $request)
@@ -97,37 +75,19 @@ class AuthController extends BaseController
     /**
      * @OA\Post(
      *     path="/api/auth/register",
-     *     summary="Registra um novo usuário",
      *     tags={"Auth"},
+     *     summary="Registro de novo usuário",
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
      *             required={"name","email","password"},
-     *             @OA\Property(property="name", type="string", minLength=2, maxLength=100),
-     *             @OA\Property(property="email", type="string", format="email", maxLength=100),
+     *             @OA\Property(property="name", type="string", minLength=2),
+     *             @OA\Property(property="email", type="string", format="email"),
      *             @OA\Property(property="password", type="string", minLength=6)
      *         )
      *     ),
-     *     @OA\Response(
-     *         response=201,
-     *         description="Usuário registrado com sucesso",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(property="message", type="string"),
-     *             @OA\Property(property="user", type="object"),
-     *             @OA\Property(
-     *                 property="authorization",
-     *                 type="object",
-     *                 @OA\Property(property="token", type="string"),
-     *                 @OA\Property(property="type", type="string", example="bearer")
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=400,
-     *         description="Erro de validação"
-     *     )
+     *     @OA\Response(response=201, description="Usuário registrado com sucesso"),
+     *     @OA\Response(response=400, description="Erro de validação")
      * )
      */
     public function register(Request $request)
@@ -181,12 +141,7 @@ class AuthController extends BaseController
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
-     *         description="Logout realizado com sucesso",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         description="Logout realizado com sucesso"
      *     )
      * )
      */
@@ -215,19 +170,7 @@ class AuthController extends BaseController
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
-     *         description="Token atualizado com sucesso",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(
-     *                 property="authorization",
-     *                 type="object",
-     *                 @OA\Property(property="token", type="string"),
-     *                 @OA\Property(property="type", type="string", example="bearer"),
-     *                 @OA\Property(property="expires_in", type="integer")
-     *             ),
-     *             @OA\Property(property="user", type="object")
-     *         )
+     *         description="Token atualizado com sucesso"
      *     )
      * )
      */
@@ -252,12 +195,7 @@ class AuthController extends BaseController
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
-     *         description="Perfil do usuário retornado com sucesso",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="status", type="string", example="success"),
-     *             @OA\Property(property="user", type="object")
-     *         )
+     *         description="Perfil do usuário retornado com sucesso"
      *     )
      * )
      */

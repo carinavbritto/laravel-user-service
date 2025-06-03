@@ -3,33 +3,27 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use ReflectionClass;
-use ReflectionMethod;
-use ReflectionProperty;
 
 class GenerateSwaggerDocs extends Command
 {
     protected $signature = 'swagger:generate';
-    protected $description = 'Gera a documentação do Swagger';
+    protected $description = 'Gera a documentação do Swagger baseada na collection do Postman';
 
     public function handle()
     {
-        $this->info('Gerando documentação do Swagger...');
+        $this->info('Gerando documentação do Swagger conforme a collection do Postman...');
 
         $openapi = [
             'openapi' => '3.0.0',
             'info' => [
-                'title' => 'User Service API',
+                'title' => 'API de Usuários',
                 'version' => '1.0.0',
-                'description' => 'API para gerenciamento de usuários',
-                'contact' => [
-                    'email' => 'carinavbritto@gmail.com'
-                ]
+                'description' => 'Documentação fiel à collection do Postman',
             ],
             'servers' => [
                 [
-                    'url' => url('/'),
-                    'description' => 'API Server'
+                    'url' => 'http://localhost:8000/api',
+                    'description' => 'Servidor Local'
                 ]
             ],
             'components' => [
@@ -44,25 +38,39 @@ class GenerateSwaggerDocs extends Command
             'security' => [
                 ['bearerAuth' => []]
             ],
-            'paths' => []
+            'paths' => new \stdClass()
         ];
 
-        // Scan controllers
-        $controllers = glob(app_path('Http/Controllers/*.php'));
-        foreach ($controllers as $controller) {
-            $className = 'App\\Http\\Controllers\\' . basename($controller, '.php');
-            if (class_exists($className)) {
-                $reflection = new ReflectionClass($className);
-                $methods = $reflection->getMethods(ReflectionMethod::IS_PUBLIC);
+        $paths = [
+            // Users
+            '/users' => [
+                'get' => $this->makeOp('Users', 'Listar todos os usuários', 'GET /users'),
+                'post' => $this->makeOp('Users', 'Criar um novo usuário', 'POST /users'),
+            ],
+            '/users/{id}' => [
+                'get' => $this->makeOp('Users', 'Buscar usuário pelo ID', 'GET /users/{id}', ['id']),
+                'put' => $this->makeOp('Users', 'Atualizar usuário pelo ID', 'PUT /users/{id}', ['id']),
+                'delete' => $this->makeOp('Users', 'Excluir usuário pelo ID', 'DELETE /users/{id}', ['id']),
+            ],
+            // Auth (com prefixo /auth)
+            '/auth/register' => [
+                'post' => $this->makeOp('Auth', 'Registrar novo usuário (autenticação)', 'POST /auth/register'),
+            ],
+            '/auth/login' => [
+                'post' => $this->makeOp('Auth', 'Login do usuário', 'POST /auth/login'),
+            ],
+            '/auth/user-profile' => [
+                'get' => $this->makeOp('Auth', 'Obter perfil do usuário autenticado', 'GET /auth/user-profile'),
+            ],
+            '/auth/logout' => [
+                'post' => $this->makeOp('Auth', 'Logout do usuário', 'POST /auth/logout'),
+            ],
+            '/auth/refresh' => [
+                'post' => $this->makeOp('Auth', 'Renovar token JWT', 'POST /auth/refresh'),
+            ],
+        ];
 
-                foreach ($methods as $method) {
-                    $docComment = $method->getDocComment();
-                    if ($docComment && strpos($docComment, '@OA\\') !== false) {
-                        $this->parseMethodDoc($docComment, $openapi);
-                    }
-                }
-            }
-        }
+        $openapi['paths'] = $paths;
 
         if (!file_exists(storage_path('api-docs'))) {
             mkdir(storage_path('api-docs'), 0755, true);
@@ -77,45 +85,26 @@ class GenerateSwaggerDocs extends Command
         $this->info('Acesse: ' . url('api/documentation'));
     }
 
-    protected function parseMethodDoc($docComment, &$openapi)
+    private function makeOp($tag, $summary, $operationId, $pathParams = [])
     {
-        // Implementação básica do parser de anotações
-        // Em um ambiente de produção, você pode querer usar uma biblioteca mais robusta
-        preg_match('/@OA\\\\([A-Za-z]+)\s*\(([^)]*)\)/s', $docComment, $matches);
-        if (count($matches) >= 3) {
-            $type = strtolower($matches[1]);
-            $params = $this->parseParams($matches[2]);
-
-            if (isset($params['path'])) {
-                $path = $params['path'];
-                unset($params['path']);
-
-                if (!isset($openapi['paths'][$path])) {
-                    $openapi['paths'][$path] = [];
-                }
-
-                $openapi['paths'][$path][$type] = $params;
-            }
+        $parameters = [];
+        foreach ($pathParams as $param) {
+            $parameters[] = [
+                'name' => $param,
+                'in' => 'path',
+                'required' => true,
+                'schema' => [ 'type' => 'string' ]
+            ];
         }
-    }
-
-    protected function parseParams($paramsStr)
-    {
-        $params = [];
-        preg_match_all('/(\w+)\s*=\s*([^,]+)/', $paramsStr, $matches, PREG_SET_ORDER);
-
-        foreach ($matches as $match) {
-            $key = trim($match[1]);
-            $value = trim($match[2]);
-
-            // Remove quotes if present
-            if (preg_match('/^["\'](.*)["\']$/', $value, $quoteMatch)) {
-                $value = $quoteMatch[1];
-            }
-
-            $params[$key] = $value;
-        }
-
-        return $params;
+        return [
+            'tags' => [$tag],
+            'summary' => $summary,
+            'operationId' => str_replace(['/', '{', '}', ' '], ['_', '', '', '_'], strtolower($operationId)),
+            'parameters' => $parameters,
+            'responses' => [
+                '200' => [ 'description' => 'Sucesso' ]
+            ],
+            'security' => [['bearerAuth' => []]]
+        ];
     }
 }

@@ -12,7 +12,7 @@ use PhpAmqpLib\Message\AMQPMessage;
 /**
  * @OA\Tag(
  *     name="Users",
- *     description="API Endpoints para gerenciamento de usuários"
+ *     description="Endpoints de gerenciamento de usuários"
  * )
  */
 class UserController extends Controller
@@ -20,25 +20,10 @@ class UserController extends Controller
     /**
      * @OA\Get(
      *     path="/api/users",
-     *     summary="Lista todos os usuários",
      *     tags={"Users"},
+     *     summary="Lista todos os usuários",
      *     security={{"bearerAuth":{}}},
-     *     @OA\Response(
-     *         response=200,
-     *         description="Lista de usuários retornada com sucesso",
-     *         @OA\JsonContent(
-     *             type="array",
-     *             @OA\Items(
-     *                 type="object",
-     *                 @OA\Property(property="id", type="integer"),
-     *                 @OA\Property(property="uuid", type="string"),
-     *                 @OA\Property(property="name", type="string"),
-     *                 @OA\Property(property="email", type="string"),
-     *                 @OA\Property(property="created_at", type="string", format="date-time"),
-     *                 @OA\Property(property="updated_at", type="string", format="date-time")
-     *             )
-     *         )
-     *     )
+     *     @OA\Response(response=200, description="Lista de usuários retornada com sucesso")
      * )
      */
     public function index(): JsonResponse
@@ -62,16 +47,7 @@ class UserController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Usuário encontrado com sucesso",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="id", type="integer"),
-     *             @OA\Property(property="uuid", type="string"),
-     *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="email", type="string"),
-     *             @OA\Property(property="created_at", type="string", format="date-time"),
-     *             @OA\Property(property="updated_at", type="string", format="date-time")
-     *         )
+     *         description="Usuário encontrado com sucesso"
      *     ),
      *     @OA\Response(
      *         response=404,
@@ -106,16 +82,7 @@ class UserController extends Controller
      *     ),
      *     @OA\Response(
      *         response=201,
-     *         description="Usuário criado com sucesso",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="id", type="integer"),
-     *             @OA\Property(property="uuid", type="string"),
-     *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="email", type="string"),
-     *             @OA\Property(property="created_at", type="string", format="date-time"),
-     *             @OA\Property(property="updated_at", type="string", format="date-time")
-     *         )
+     *         description="Usuário criado com sucesso"
      *     ),
      *     @OA\Response(
      *         response=400,

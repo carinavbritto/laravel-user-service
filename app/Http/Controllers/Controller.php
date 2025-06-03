@@ -9,16 +9,13 @@ use Illuminate\Routing\Controller as BaseController;
 /**
  * @OA\Info(
  *     version="1.0.0",
- *     title="User Service API",
- *     description="API para gerenciamento de usuários",
- *     @OA\Contact(
- *         email="carinavbritto@gmail.com"
- *     )
+ *     title="API de Usuários",
+ *     description="API para gerenciamento de usuários com autenticação JWT"
  * )
  *
  * @OA\Server(
- *     url=L5_SWAGGER_CONST_HOST,
- *     description="API Server"
+ *     url="http://localhost:8000",
+ *     description="Servidor Local"
  * )
  *
  * @OA\SecurityScheme(

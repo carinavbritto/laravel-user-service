@@ -1,17 +1,14 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "User Service API",
+        "title": "API de Usu\u00e1rios",
         "version": "1.0.0",
-        "description": "API para gerenciamento de usu\u00e1rios",
-        "contact": {
-            "email": "carinavbritto@gmail.com"
-        }
+        "description": "Documenta\u00e7\u00e3o fiel \u00e0 collection do Postman"
     },
     "servers": [
         {
-            "url": "http://localhost",
-            "description": "API Server"
+            "url": "http://localhost:8000/api",
+            "description": "Servidor Local"
         }
     ],
     "components": {
@@ -29,113 +26,225 @@
         }
     ],
     "paths": {
-        "/api/auth/login": {
-            "post": {
-                "summary": "Autentica um usu\u00e1rio",
-                "tags": "{\"Auth\"}",
-                "required": "{\"email\"",
-                "property": "email",
-                "type": "string",
-                "format": "email"
-            }
-        },
-        "/api/auth/register": {
-            "post": {
-                "summary": "Registra um novo usu\u00e1rio",
-                "tags": "{\"Auth\"}",
-                "required": "{\"name\"",
-                "property": "name",
-                "type": "string",
-                "minLength": "2",
-                "maxLength": "100"
-            }
-        },
-        "/api/auth/logout": {
-            "post": {
-                "summary": "Desloga o usu\u00e1rio atual",
-                "tags": "{\"Auth\"}",
-                "security": "{{\"bearerAuth\":{}}}",
-                "response": "200",
-                "description": "Logout realizado com sucesso",
-                "type": "string",
-                "property": "status",
-                "example": "success"
-            }
-        },
-        "/api/auth/refresh": {
-            "post": {
-                "summary": "Atualiza o token de autentica\u00e7\u00e3o",
-                "tags": "{\"Auth\"}",
-                "security": "{{\"bearerAuth\":{}}}",
-                "response": "200",
-                "description": "Token atualizado com sucesso",
-                "type": "string",
-                "property": "status",
-                "example": "success"
-            }
-        },
-        "/api/auth/user-profile": {
+        "/users": {
             "get": {
-                "summary": "Obt\u00e9m o perfil do usu\u00e1rio autenticado",
-                "tags": "{\"Auth\"}",
-                "security": "{{\"bearerAuth\":{}}}",
-                "response": "200",
-                "description": "Perfil do usu\u00e1rio retornado com sucesso",
-                "type": "string",
-                "property": "status",
-                "example": "success"
-            }
-        },
-        "/api/users": {
-            "get": {
-                "summary": "Lista todos os usu\u00e1rios",
-                "tags": "{\"Users\"}",
-                "security": "{{\"bearerAuth\":{}}}",
-                "response": "200",
-                "description": "Lista de usu\u00e1rios retornada com sucesso",
-                "type": "integer",
-                "property": "id"
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Listar todos os usu\u00e1rios",
+                "operationId": "get__users",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Sucesso"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             },
             "post": {
-                "summary": "Cria um novo usu\u00e1rio",
-                "tags": "{\"Users\"}",
-                "security": "{{\"bearerAuth\":{}}}",
-                "required": "{\"name\"",
-                "property": "name",
-                "type": "string",
-                "minLength": "3"
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Criar um novo usu\u00e1rio",
+                "operationId": "post__users",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Sucesso"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
-        "/api/users/{id}": {
+        "/users/{id}": {
             "get": {
-                "summary": "Obt\u00e9m um usu\u00e1rio espec\u00edfico",
-                "tags": "{\"Users\"}",
-                "security": "{{\"bearerAuth\":{}}}",
-                "name": "id",
-                "in": "path",
-                "required": "true",
-                "description": "ID do usu\u00e1rio",
-                "type": "integer"
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Buscar usu\u00e1rio pelo ID",
+                "operationId": "get__users_id",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sucesso"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             },
             "put": {
-                "summary": "Atualiza um usu\u00e1rio existente",
-                "tags": "{\"Users\"}",
-                "security": "{{\"bearerAuth\":{}}}",
-                "name": "id",
-                "in": "path",
-                "required": "true",
-                "description": "ID do usu\u00e1rio",
-                "type": "integer"
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Atualizar usu\u00e1rio pelo ID",
+                "operationId": "put__users_id",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sucesso"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             },
             "delete": {
-                "summary": "Remove um usu\u00e1rio",
-                "tags": "{\"Users\"}",
-                "security": "{{\"bearerAuth\":{}}}",
-                "name": "id",
-                "in": "path",
-                "required": "true",
-                "description": "ID do usu\u00e1rio",
-                "type": "integer"
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Excluir usu\u00e1rio pelo ID",
+                "operationId": "delete__users_id",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sucesso"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Registrar novo usu\u00e1rio (autentica\u00e7\u00e3o)",
+                "operationId": "post__auth_register",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Sucesso"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login do usu\u00e1rio",
+                "operationId": "post__auth_login",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Sucesso"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/auth/user-profile": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Obter perfil do usu\u00e1rio autenticado",
+                "operationId": "get__auth_user-profile",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Sucesso"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout do usu\u00e1rio",
+                "operationId": "post__auth_logout",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Sucesso"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/auth/refresh": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Renovar token JWT",
+                "operationId": "post__auth_refresh",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Sucesso"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         }
     }
