@@ -2,6 +2,37 @@
 
 Um microserviço RESTful para gerenciamento de usuários, parte de uma arquitetura distribuída em microsserviços. Este serviço é responsável pelo gerenciamento dos dados básicos dos usuários e pela publicação de eventos de mudança de estado através do RabbitMQ.
 
+## 📚 Documentação da API
+
+A documentação completa da API está disponível através do Swagger UI. Após iniciar o serviço, você pode acessar a documentação em:
+
+```
+http://localhost:8000/api/documentation
+```
+
+### Autenticação
+
+A API utiliza autenticação JWT (JSON Web Token). Para acessar os endpoints protegidos:
+
+1. Registre um novo usuário através do endpoint `/api/auth/register`
+2. Faça login através do endpoint `/api/auth/login`
+3. Use o token retornado no header `Authorization: Bearer {token}` para as requisições subsequentes
+
+Exemplo de uso do token:
+
+```bash
+curl -H "Authorization: Bearer {seu_token}" http://localhost:8000/api/users
+```
+
+### Rate Limiting
+
+A API implementa rate limiting para proteger contra abusos. Os limites são:
+
+-   60 requisições por minuto para endpoints públicos (login, registro)
+-   30 requisições por minuto para endpoints autenticados
+
+Quando o limite é excedido, a API retorna o status code 429 (Too Many Requests) com o header `Retry-After` indicando o tempo em segundos para a próxima tentativa.
+
 ## 🏗️ Arquitetura do Sistema
 
 O sistema é composto por três componentes principais:

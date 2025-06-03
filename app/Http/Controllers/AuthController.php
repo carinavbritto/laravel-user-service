@@ -9,6 +9,12 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Routing\Controller as BaseController;
 
+/**
+ * @OA\Tag(
+ *     name="Auth",
+ *     description="API Endpoints para autenticação"
+ * )
+ */
 class AuthController extends BaseController
 {
     public function __construct()
@@ -16,6 +22,45 @@ class AuthController extends BaseController
         $this->middleware('auth:api', ['except' => ['login', 'register']]);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/auth/login",
+     *     summary="Autentica um usuário",
+     *     tags={"Auth"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email","password"},
+     *             @OA\Property(property="email", type="string", format="email"),
+     *             @OA\Property(property="password", type="string", minLength=6)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Login realizado com sucesso",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(
+     *                 property="authorization",
+     *                 type="object",
+     *                 @OA\Property(property="token", type="string"),
+     *                 @OA\Property(property="type", type="string", example="bearer"),
+     *                 @OA\Property(property="expires_in", type="integer")
+     *             ),
+     *             @OA\Property(property="user", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Credenciais inválidas"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Erro de validação"
+     *     )
+     * )
+     */
     public function login(Request $request)
     {
         try {
@@ -49,6 +94,42 @@ class AuthController extends BaseController
         }
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/auth/register",
+     *     summary="Registra um novo usuário",
+     *     tags={"Auth"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name","email","password"},
+     *             @OA\Property(property="name", type="string", minLength=2, maxLength=100),
+     *             @OA\Property(property="email", type="string", format="email", maxLength=100),
+     *             @OA\Property(property="password", type="string", minLength=6)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Usuário registrado com sucesso",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="user", type="object"),
+     *             @OA\Property(
+     *                 property="authorization",
+     *                 type="object",
+     *                 @OA\Property(property="token", type="string"),
+     *                 @OA\Property(property="type", type="string", example="bearer")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Erro de validação"
+     *     )
+     * )
+     */
     public function register(Request $request)
     {
         try {
@@ -92,6 +173,23 @@ class AuthController extends BaseController
         }
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/auth/logout",
+     *     summary="Desloga o usuário atual",
+     *     tags={"Auth"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Logout realizado com sucesso",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function logout()
     {
         try {
@@ -109,6 +207,30 @@ class AuthController extends BaseController
         }
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/auth/refresh",
+     *     summary="Atualiza o token de autenticação",
+     *     tags={"Auth"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Token atualizado com sucesso",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(
+     *                 property="authorization",
+     *                 type="object",
+     *                 @OA\Property(property="token", type="string"),
+     *                 @OA\Property(property="type", type="string", example="bearer"),
+     *                 @OA\Property(property="expires_in", type="integer")
+     *             ),
+     *             @OA\Property(property="user", type="object")
+     *         )
+     *     )
+     * )
+     */
     public function refresh()
     {
         try {
@@ -122,6 +244,23 @@ class AuthController extends BaseController
         }
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/auth/user-profile",
+     *     summary="Obtém o perfil do usuário autenticado",
+     *     tags={"Auth"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Perfil do usuário retornado com sucesso",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="user", type="object")
+     *         )
+     *     )
+     * )
+     */
     public function userProfile()
     {
         try {

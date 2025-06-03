@@ -1,0 +1,142 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "User Service API",
+        "version": "1.0.0",
+        "description": "API para gerenciamento de usu\u00e1rios",
+        "contact": {
+            "email": "carinavbritto@gmail.com"
+        }
+    },
+    "servers": [
+        {
+            "url": "http://localhost",
+            "description": "API Server"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    },
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ],
+    "paths": {
+        "/api/auth/login": {
+            "post": {
+                "summary": "Autentica um usu\u00e1rio",
+                "tags": "{\"Auth\"}",
+                "required": "{\"email\"",
+                "property": "email",
+                "type": "string",
+                "format": "email"
+            }
+        },
+        "/api/auth/register": {
+            "post": {
+                "summary": "Registra um novo usu\u00e1rio",
+                "tags": "{\"Auth\"}",
+                "required": "{\"name\"",
+                "property": "name",
+                "type": "string",
+                "minLength": "2",
+                "maxLength": "100"
+            }
+        },
+        "/api/auth/logout": {
+            "post": {
+                "summary": "Desloga o usu\u00e1rio atual",
+                "tags": "{\"Auth\"}",
+                "security": "{{\"bearerAuth\":{}}}",
+                "response": "200",
+                "description": "Logout realizado com sucesso",
+                "type": "string",
+                "property": "status",
+                "example": "success"
+            }
+        },
+        "/api/auth/refresh": {
+            "post": {
+                "summary": "Atualiza o token de autentica\u00e7\u00e3o",
+                "tags": "{\"Auth\"}",
+                "security": "{{\"bearerAuth\":{}}}",
+                "response": "200",
+                "description": "Token atualizado com sucesso",
+                "type": "string",
+                "property": "status",
+                "example": "success"
+            }
+        },
+        "/api/auth/user-profile": {
+            "get": {
+                "summary": "Obt\u00e9m o perfil do usu\u00e1rio autenticado",
+                "tags": "{\"Auth\"}",
+                "security": "{{\"bearerAuth\":{}}}",
+                "response": "200",
+                "description": "Perfil do usu\u00e1rio retornado com sucesso",
+                "type": "string",
+                "property": "status",
+                "example": "success"
+            }
+        },
+        "/api/users": {
+            "get": {
+                "summary": "Lista todos os usu\u00e1rios",
+                "tags": "{\"Users\"}",
+                "security": "{{\"bearerAuth\":{}}}",
+                "response": "200",
+                "description": "Lista de usu\u00e1rios retornada com sucesso",
+                "type": "integer",
+                "property": "id"
+            },
+            "post": {
+                "summary": "Cria um novo usu\u00e1rio",
+                "tags": "{\"Users\"}",
+                "security": "{{\"bearerAuth\":{}}}",
+                "required": "{\"name\"",
+                "property": "name",
+                "type": "string",
+                "minLength": "3"
+            }
+        },
+        "/api/users/{id}": {
+            "get": {
+                "summary": "Obt\u00e9m um usu\u00e1rio espec\u00edfico",
+                "tags": "{\"Users\"}",
+                "security": "{{\"bearerAuth\":{}}}",
+                "name": "id",
+                "in": "path",
+                "required": "true",
+                "description": "ID do usu\u00e1rio",
+                "type": "integer"
+            },
+            "put": {
+                "summary": "Atualiza um usu\u00e1rio existente",
+                "tags": "{\"Users\"}",
+                "security": "{{\"bearerAuth\":{}}}",
+                "name": "id",
+                "in": "path",
+                "required": "true",
+                "description": "ID do usu\u00e1rio",
+                "type": "integer"
+            },
+            "delete": {
+                "summary": "Remove um usu\u00e1rio",
+                "tags": "{\"Users\"}",
+                "security": "{{\"bearerAuth\":{}}}",
+                "name": "id",
+                "in": "path",
+                "required": "true",
+                "description": "ID do usu\u00e1rio",
+                "type": "integer"
+            }
+        }
+    }
+}
